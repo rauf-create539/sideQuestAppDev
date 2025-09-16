@@ -1,171 +1,186 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
-function App() {
-  const [todos, setTodos] = useState([]);
-  const [newTodo, setNewTodo] = useState('');
-  const [editingId, setEditingId] = useState(null);
-  const [editText, setEditText] = useState('');
+// TaskItem component that receives props
+function TaskItem({ task, onToggleComplete, onEdit, onDelete }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(task.text);
 
-  // Load todos from memory on component mount
+  const handleSave = () => {
+    if (editText.trim() !== '') {
+      onEdit(task.id, editText.trim());
+      setIsEditing(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setEditText(task.text);
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSave();
+    }
+  };
+
+  return (
+    <div className="task-item">
+      <div className="task-content">
+        <input
+          type="checkbox"
+          checked={task.completed}
+          onChange={() => onToggleComplete(task.id)}
+          className="task-checkbox"
+        />
+        
+        <div className="task-text-container">
+          {isEditing ? (
+            <input
+              type="text"
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="edit-input"
+              autoFocus
+            />
+          ) : (
+            <span className={task.completed ? "task-text completed" : "task-text"}>
+              {task.text}
+            </span>
+          )}
+        </div>
+
+        <div className="button-group">
+          {isEditing ? (
+            <>
+              <button
+                onClick={handleSave}
+                className="action-button save-button"
+              >
+                Save
+              </button>
+              <button
+                onClick={handleCancel}
+                className="action-button cancel-button"
+              >
+                Cancel
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => setIsEditing(true)}
+                className="action-button edit-button"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => onDelete(task.id)}
+                className="action-button delete-button"
+              >
+                Delete
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [tasks, setTasks] = useState([]);
+  const [newTask, setNewTask] = useState('');
+
+  // Load tasks from localStorage on component mount
   useEffect(() => {
-    // Initialize with some sample todos for demonstration
-    const initialTodos = [
-      { id: 1, text: 'Learn React hooks', completed: false },
-      { id: 2, text: 'Build a todo app', completed: true }
-    ];
-    setTodos(initialTodos);
+    const savedTasks = localStorage.getItem('tasks');
+    if (savedTasks) {
+      setTasks(JSON.parse(savedTasks));
+    }
   }, []);
 
-  const addTodo = () => {
-    if (newTodo.trim() !== '') {
-      const todo = {
+  // Save tasks to localStorage whenever tasks change
+  useEffect(() => {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+  }, [tasks]);
+
+  const addTask = () => {
+    if (newTask.trim() !== '') {
+      const task = {
         id: Date.now(),
-        text: newTodo.trim(),
+        text: newTask.trim(),
         completed: false
       };
-      setTodos([...todos, todo]);
-      setNewTodo('');
+      setTasks([...tasks, task]);
+      setNewTask('');
     }
-  };
-
-  const deleteTodo = (id) => {
-    setTodos(todos.filter(todo => todo.id !== id));
-  };
-
-  const startEdit = (id, text) => {
-    setEditingId(id);
-    setEditText(text);
-  };
-
-  const saveEdit = () => {
-    if (editText.trim() !== '') {
-      setTodos(todos.map(todo => 
-        todo.id === editingId ? { ...todo, text: editText.trim() } : todo
-      ));
-    }
-    setEditingId(null);
-    setEditText('');
   };
 
   const toggleComplete = (id) => {
-    setTodos(todos.map(todo => 
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+    setTasks(tasks.map(task => 
+      task.id === id ? { ...task, completed: !task.completed } : task
     ));
   };
 
-  const cancelEdit = () => {
-    setEditingId(null);
-    setEditText('');
+  const editTask = (id, newText) => {
+    setTasks(tasks.map(task => 
+      task.id === id ? { ...task, text: newText } : task
+    ));
   };
 
-  const handleKeyPress = (e, action) => {
+  const deleteTask = (id) => {
+    setTasks(tasks.filter(task => task.id !== id));
+  };
+
+  const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
-      action();
+      addTask();
     }
   };
 
   return (
     <div className="app-container">
       <div className="main-wrapper">
-        <h1 className="app-title">My Todo List</h1>
+        <h1 className="app-title">To-Do Task</h1>
         
-        {/* Add new todo */}
-        <div className="add-todo-section">
+        {/* Add new task */}
+        <div className="add-task-section">
           <div className="input-container">
             <input
               type="text"
-              value={newTodo}
-              onChange={(e) => setNewTodo(e.target.value)}
-              onKeyPress={(e) => handleKeyPress(e, addTodo)}
-              placeholder="Add a new todo..."
-              className="todo-input"
+              value={newTask}
+              onChange={(e) => setNewTask(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Add a new task..."
+              className="task-input"
             />
             <button
-              onClick={addTodo}
+              onClick={addTask}
               className="add-button"
             >
-              Add
+              Add Task
             </button>
           </div>
         </div>
 
-        {/* Todo list */}
-        <div className="todo-list">
-          {todos.length === 0 ? (
+        {/* Task list using .map() */}
+        <div className="task-list">
+          {tasks.length === 0 ? (
             <div className="empty-state">
-              No todos yet. Add one above!
+              No tasks yet. Add one above!
             </div>
           ) : (
             <div>
-              {todos.map((todo) => (
-                <div 
-                  key={todo.id} 
-                  className="todo-item"
-                >
-                  <div className="todo-content">
-                    {/* Checkbox */}
-                    <input
-                      type="checkbox"
-                      checked={todo.completed}
-                      onChange={() => toggleComplete(todo.id)}
-                      className="todo-checkbox"
-                    />
-
-                    {/* Todo text */}
-                    <div className="todo-text-container">
-                      {editingId === todo.id ? (
-                        <input
-                          type="text"
-                          value={editText}
-                          onChange={(e) => setEditText(e.target.value)}
-                          onKeyPress={(e) => handleKeyPress(e, saveEdit)}
-                          className="edit-input"
-                          autoFocus
-                        />
-                      ) : (
-                        <span className={todo.completed ? "todo-text completed" : "todo-text"}>
-                          {todo.text}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Action buttons */}
-                    <div className="button-group">
-                      {editingId === todo.id ? (
-                        <>
-                          <button
-                            onClick={saveEdit}
-                            className="action-button save-button"
-                          >
-                            Save
-                          </button>
-                          <button
-                            onClick={cancelEdit}
-                            className="action-button cancel-button"
-                          >
-                            Cancel
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <button
-                            onClick={() => startEdit(todo.id, todo.text)}
-                            className="action-button edit-button"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => deleteTodo(todo.id)}
-                            className="action-button delete-button"
-                          >
-                            Delete
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
+              {tasks.map((task) => (
+                <TaskItem 
+                  key={task.id}
+                  task={task}
+                  onToggleComplete={toggleComplete}
+                  onEdit={editTask}
+                  onDelete={deleteTask}
+                />
               ))}
             </div>
           )}
