@@ -160,3 +160,20 @@
 .delete-button:hover {
   background-color: #feb2b2;
 }
+
+.todo-checkbox {
+  width: 20px;
+  height: 20px;
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+.todo-text.completed {
+  text-decoration: line-through;
+  color: #a0aec0;
+  opacity: 0.6;
+}
+
+.todo-item.completed {
+  background-color: #f7fafc;
+}

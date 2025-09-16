@@ -11,7 +11,8 @@ function App() {
   useEffect(() => {
     // Initialize with some sample todos for demonstration
     const initialTodos = [
-      
+      { id: 1, text: 'Learn React hooks', completed: false },
+      { id: 2, text: 'Build a todo app', completed: true }
     ];
     setTodos(initialTodos);
   }, []);
@@ -20,7 +21,8 @@ function App() {
     if (newTodo.trim() !== '') {
       const todo = {
         id: Date.now(),
-        text: newTodo.trim()
+        text: newTodo.trim(),
+        completed: false
       };
       setTodos([...todos, todo]);
       setNewTodo('');
@@ -44,6 +46,12 @@ function App() {
     }
     setEditingId(null);
     setEditText('');
+  };
+
+  const toggleComplete = (id) => {
+    setTodos(todos.map(todo => 
+      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+    ));
   };
 
   const cancelEdit = () => {
@@ -96,6 +104,14 @@ function App() {
                   className="todo-item"
                 >
                   <div className="todo-content">
+                    {/* Checkbox */}
+                    <input
+                      type="checkbox"
+                      checked={todo.completed}
+                      onChange={() => toggleComplete(todo.id)}
+                      className="todo-checkbox"
+                    />
+
                     {/* Todo text */}
                     <div className="todo-text-container">
                       {editingId === todo.id ? (
@@ -108,7 +124,7 @@ function App() {
                           autoFocus
                         />
                       ) : (
-                        <span className="todo-text">
+                        <span className={todo.completed ? "todo-text completed" : "todo-text"}>
                           {todo.text}
                         </span>
                       )}
