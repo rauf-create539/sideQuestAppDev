@@ -119,13 +119,13 @@ function App() {
   };
 
   const toggleComplete = (id) => {
-    setTasks(tasks.map(task => 
+    setTasks(tasks.map(task =>
       task.id === id ? { ...task, completed: !task.completed } : task
     ));
   };
 
   const editTask = (id, newText) => {
-    setTasks(tasks.map(task => 
+    setTasks(tasks.map(task =>
       task.id === id ? { ...task, text: newText } : task
     ));
   };
@@ -144,7 +144,7 @@ function App() {
     <div className="app-container">
       <div className="main-wrapper">
         <h1 className="app-title">To-Do Task</h1>
-        
+
         {/* Add new task */}
         <div className="add-task-section">
           <div className="input-container">
@@ -174,7 +174,7 @@ function App() {
           ) : (
             <div>
               {tasks.map((task) => (
-                <TaskItem 
+                <TaskItem
                   key={task.id}
                   task={task}
                   onToggleComplete={toggleComplete}
