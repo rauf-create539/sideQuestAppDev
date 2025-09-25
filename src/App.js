@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
+// JP
 // TaskItem component that receives props
 function TaskItem({ task, onToggleComplete, onEdit, onDelete }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(task.text);
-
+  
   const handleSave = () => {
     if (editText.trim() !== '') {
       onEdit(task.id, editText.trim());
@@ -23,6 +24,8 @@ function TaskItem({ task, onToggleComplete, onEdit, onDelete }) {
       handleSave();
     }
   };
+
+  // Rauf/Goat
   // This one is about when you click edit, the checkbox is not clickable.
   useEffect(() => {
     if (task.completed) {
@@ -60,6 +63,7 @@ function TaskItem({ task, onToggleComplete, onEdit, onDelete }) {
           )}
         </div>
 
+          {/* JinBilog0v0*/}
         <div className="button-group">
           {task.completed ? (
             // This is when the task is completed and only the delete button will be shown
@@ -105,6 +109,7 @@ function TaskItem({ task, onToggleComplete, onEdit, onDelete }) {
     </div>
   );
 }
+// Pheinz
 // App Component
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -157,12 +162,12 @@ function App() {
     }
   };
 
-
+  //Rhadz
   // UI of the app
   return (
     <div className="app-container">
       <div className="main-wrapper">
-        <h1 className="app-title">To-Do Task</h1>
+        <h1 className="app-title">Group 1:To-Do List App</h1>
 
         {/* Add new task */}
         <div className="add-task-section">
