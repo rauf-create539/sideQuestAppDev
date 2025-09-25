@@ -23,6 +23,13 @@ function TaskItem({ task, onToggleComplete, onEdit, onDelete }) {
       handleSave();
     }
   };
+  // This one is about when you click edit, the checkbox is not clickable.
+  useEffect(() => {
+    if (task.completed) {
+      setIsEditing(false);
+      setEditText(task.text);
+    }
+  }, [task.completed, task.text]);
 
   return (
     <div className="task-item">
@@ -32,10 +39,12 @@ function TaskItem({ task, onToggleComplete, onEdit, onDelete }) {
           checked={task.completed}
           onChange={() => onToggleComplete(task.id)}
           className="task-checkbox"
+          disabled={isEditing}
         />
-        
+
+        {/* This one when you clicked the checkbox, the buttons are hidden */}
         <div className="task-text-container">
-          {isEditing ? (
+          {isEditing && !task.completed ? (
             <input
               type="text"
               value={editText}
@@ -52,22 +61,29 @@ function TaskItem({ task, onToggleComplete, onEdit, onDelete }) {
         </div>
 
         <div className="button-group">
-          {isEditing ? (
+          {task.completed ? (
+            // This is when the task is completed and only the delete button will be shown
+            <button
+              onClick={() => {
+                onDelete(task.id);
+                
+              }}
+              className="action-button delete-button"
+            >
+              Delete
+            </button>
+          ) : isEditing ? (
+            // Default, while editing save and cancel buttons will be shown.
             <>
-              <button
-                onClick={handleSave}
-                className="action-button save-button"
-              >
+              <button onClick={handleSave} className="action-button save-button">
                 Save
               </button>
-              <button
-                onClick={handleCancel}
-                className="action-button cancel-button"
-              >
+              <button onClick={handleCancel} className="action-button cancel-button">
                 Cancel
               </button>
             </>
           ) : (
+            // default++
             <>
               <button
                 onClick={() => setIsEditing(true)}
@@ -84,11 +100,12 @@ function TaskItem({ task, onToggleComplete, onEdit, onDelete }) {
             </>
           )}
         </div>
+
       </div>
     </div>
   );
 }
-
+// App Component
 function App() {
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState('');
@@ -140,6 +157,8 @@ function App() {
     }
   };
 
+
+  // UI of the app
   return (
     <div className="app-container">
       <div className="main-wrapper">
